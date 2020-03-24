@@ -42,13 +42,7 @@ modules:
       - name: refjs_api
       - name: MAIN_REF-uaa
 
-  - name: NewTest
-    type: nodejs
-    path: NewTest
-    provides:
-     - name: NewTest_api
-       properties:
-          url: ${default-url}
+  
 
 resources:
   - name: REF-db-hdi-container
