@@ -1,0 +1,396 @@
+{
+  "definitions": {
+    "Base": {
+      "kind": "entity",
+      "@cds.persistence.name": "BASE",
+      "elements": {
+        "ID": {
+          "@cds.persistence.name": "ID",
+          "key": true,
+          "type": "cds.Integer"
+        }
+      }
+    },
+    "CUSTOMER": {
+      "kind": "entity",
+      "@cds.persistence.name": "CUSTOMER",
+      "elements": {
+        "CUSTOMER_CODE": {
+          "@cds.persistence.name": "CUSTOMER_CODE",
+          "key": true,
+          "type": "cds.String",
+          "length": 30
+        },
+        "CUSTOMER_NAME": {
+          "@cds.persistence.name": "CUSTOMER_NAME",
+          "type": "cds.String",
+          "length": 100
+        },
+        "GROUPS": {
+          "@cds.persistence.name": "GROUPS",
+          "type": "cds.Association",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "CUSTOMER_GROUP_BRIDGE",
+          "on": [
+            {
+              "ref": [
+                "GROUPS",
+                "CUSTOMER_CODE"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "CUSTOMER_GROUP": {
+      "kind": "entity",
+      "@cds.persistence.name": "CUSTOMER_GROUP",
+      "elements": {
+        "GROUP_CODE": {
+          "@cds.persistence.name": "GROUP_CODE",
+          "key": true,
+          "type": "cds.String",
+          "length": 30
+        },
+        "GROUP_NAME": {
+          "@cds.persistence.name": "GROUP_NAME",
+          "type": "cds.String",
+          "length": 100
+        },
+        "GROUP_OWNER": {
+          "@cds.persistence.name": "GROUP_OWNER",
+          "type": "cds.String",
+          "length": 100
+        },
+        "GROUP_CLASS": {
+          "@cds.persistence.name": "GROUP_CLASS",
+          "type": "cds.Integer"
+        },
+        "CUSTOMERS": {
+          "@cds.persistence.name": "CUSTOMERS",
+          "type": "cds.Association",
+          "cardinality": {
+            "max": "*"
+          },
+          "target": "CUSTOMER_GROUP_BRIDGE",
+          "on": [
+            {
+              "ref": [
+                "CUSTOMERS",
+                "GROUP_CODE"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "$self"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "CUSTOMER_GROUP_BRIDGE": {
+      "kind": "entity",
+      "@cds.persistence.name": "CUSTOMER_GROUP_BRIDGE",
+      "elements": {
+        "GROUP_CODE": {
+          "@cds.persistence.name": "GROUP_CODE",
+          "key": true,
+          "type": "cds.Association",
+          "target": "CUSTOMER_GROUP",
+          "keys": [
+            {
+              "ref": [
+                "GROUP_CODE"
+              ],
+              "$generatedFieldName": "GROUP_CODE_GROUP_CODE"
+            }
+          ]
+        },
+        "CUSTOMER_CODE": {
+          "@cds.persistence.name": "CUSTOMER_CODE",
+          "key": true,
+          "type": "cds.Association",
+          "target": "CUSTOMER",
+          "keys": [
+            {
+              "ref": [
+                "CUSTOMER_CODE"
+              ],
+              "$generatedFieldName": "CUSTOMER_CODE_CUSTOMER_CODE"
+            }
+          ]
+        },
+        "GROUP_CODE_GROUP_CODE": {
+          "@cds.persistence.name": "GROUP_CODE_GROUP_CODE",
+          "@odata.foreignKey4": "GROUP_CODE",
+          "key": true,
+          "type": "cds.String",
+          "length": 30
+        },
+        "CUSTOMER_CODE_CUSTOMER_CODE": {
+          "@cds.persistence.name": "CUSTOMER_CODE_CUSTOMER_CODE",
+          "@odata.foreignKey4": "CUSTOMER_CODE",
+          "key": true,
+          "type": "cds.String",
+          "length": 30
+        }
+      }
+    },
+    "CUSTOMER_GROUP_INFO": {
+      "kind": "entity",
+      "@cds.persistence.name": "CUSTOMER_GROUP_INFO",
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "CUSTOMER_GROUP_BRIDGE"
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "GROUP_CODE",
+                "GROUP_CODE"
+              ]
+            },
+            {
+              "ref": [
+                "GROUP_CODE",
+                "GROUP_NAME"
+              ]
+            },
+            {
+              "ref": [
+                "GROUP_CODE",
+                "GROUP_OWNER"
+              ]
+            },
+            {
+              "ref": [
+                "GROUP_CODE",
+                "GROUP_CLASS"
+              ]
+            },
+            {
+              "ref": [
+                "CUSTOMER_CODE",
+                "CUSTOMER_CODE"
+              ]
+            },
+            {
+              "ref": [
+                "CUSTOMER_CODE",
+                "CUSTOMER_NAME"
+              ]
+            }
+          ]
+        }
+      },
+      "elements": {
+        "GROUP_CODE": {
+          "@cds.persistence.name": "GROUP_CODE",
+          "type": "cds.String",
+          "length": 30
+        },
+        "GROUP_NAME": {
+          "@cds.persistence.name": "GROUP_NAME",
+          "type": "cds.String",
+          "length": 100
+        },
+        "GROUP_OWNER": {
+          "@cds.persistence.name": "GROUP_OWNER",
+          "type": "cds.String",
+          "length": 100
+        },
+        "GROUP_CLASS": {
+          "@cds.persistence.name": "GROUP_CLASS",
+          "type": "cds.Integer"
+        },
+        "CUSTOMER_CODE": {
+          "@cds.persistence.name": "CUSTOMER_CODE",
+          "type": "cds.String",
+          "length": 30
+        },
+        "CUSTOMER_NAME": {
+          "@cds.persistence.name": "CUSTOMER_NAME",
+          "type": "cds.String",
+          "length": 100
+        }
+      },
+      "$syntax": "view"
+    },
+    "CatalogService": {
+      "@source": "srv/cat-service.cds",
+      "kind": "service"
+    },
+    "EXT_CUSTOMER_NAME": {
+      "kind": "entity",
+      "@cds.persistence.name": "EXT_CUSTOMER_NAME",
+      "elements": {
+        "CUSTOMER_ID": {
+          "@cds.persistence.name": "CUSTOMER_ID",
+          "type": "cds.String",
+          "length": 30
+        },
+        "CUSTOMER_NAME": {
+          "@cds.persistence.name": "CUSTOMER_NAME",
+          "type": "cds.String",
+          "length": 100
+        }
+      }
+    },
+    "EXT_DATE": {
+      "kind": "entity",
+      "@cds.persistence.name": "EXT_DATE",
+      "elements": {
+        "DATE": {
+          "@cds.persistence.name": "DATE",
+          "type": "cds.Date"
+        },
+        "DAY_OF_WEEK": {
+          "@cds.persistence.name": "DAY_OF_WEEK",
+          "type": "cds.String",
+          "length": 10
+        },
+        "DAY_NUMBER": {
+          "@cds.persistence.name": "DAY_NUMBER",
+          "type": "cds.Integer"
+        }
+      }
+    },
+    "EXT_STAFFING": {
+      "kind": "entity",
+      "@cds.persistence.name": "EXT_STAFFING",
+      "elements": {
+        "EXTRACT_DATE": {
+          "@cds.persistence.name": "EXTRACT_DATE",
+          "type": "cds.Date"
+        },
+        "FORECAST_DATE": {
+          "@cds.persistence.name": "FORECAST_DATE",
+          "type": "cds.Date"
+        },
+        "FORECAST_AMOUNT": {
+          "@cds.persistence.name": "FORECAST_AMOUNT",
+          "type": "cds.Decimal",
+          "precision": 18,
+          "scale": 2
+        },
+        "FORECAST_AM_PM": {
+          "@cds.persistence.name": "FORECAST_AM_PM",
+          "type": "cds.String",
+          "length": 30
+        },
+        "FORECAST_SOFTBOOKING": {
+          "@cds.persistence.name": "FORECAST_SOFTBOOKING",
+          "type": "cds.String",
+          "length": 10
+        },
+        "WBS_ID": {
+          "@cds.persistence.name": "WBS_ID",
+          "type": "cds.String",
+          "length": 30
+        },
+        "WBS_LEAN_ENTITY": {
+          "@cds.persistence.name": "WBS_LEAN_ENTITY",
+          "type": "cds.Integer"
+        },
+        "WBS_DESCRIPTION": {
+          "@cds.persistence.name": "WBS_DESCRIPTION",
+          "type": "cds.String",
+          "length": 100
+        },
+        "CONSULTANT_ID": {
+          "@cds.persistence.name": "CONSULTANT_ID",
+          "type": "cds.String",
+          "length": 30
+        },
+        "CONSULTANT_LEAN_ENTITY": {
+          "@cds.persistence.name": "CONSULTANT_LEAN_ENTITY",
+          "type": "cds.Integer"
+        },
+        "CONSULTANT_SAP_STATUS": {
+          "@cds.persistence.name": "CONSULTANT_SAP_STATUS",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CONSULTANT_STAFFING_STATUS": {
+          "@cds.persistence.name": "CONSULTANT_STAFFING_STATUS",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CONSULTANT_FIRST_NAME": {
+          "@cds.persistence.name": "CONSULTANT_FIRST_NAME",
+          "type": "cds.String",
+          "length": 60
+        },
+        "CONSULTANT_LAST_NAME": {
+          "@cds.persistence.name": "CONSULTANT_LAST_NAME",
+          "type": "cds.String",
+          "length": 60
+        },
+        "CONSULTANT_MANAGER_ID": {
+          "@cds.persistence.name": "CONSULTANT_MANAGER_ID",
+          "type": "cds.String",
+          "length": 30
+        },
+        "CONSULTANT_MANAGER_FIRST_NAME": {
+          "@cds.persistence.name": "CONSULTANT_MANAGER_FIRST_NAME",
+          "type": "cds.String",
+          "length": 60
+        },
+        "CONSULTANT_MANAGER_LAST_NAME": {
+          "@cds.persistence.name": "CONSULTANT_MANAGER_LAST_NAME",
+          "type": "cds.String",
+          "length": 60
+        },
+        "CONSULTANT_COST_CENTRE_NUMBER": {
+          "@cds.persistence.name": "CONSULTANT_COST_CENTRE_NUMBER",
+          "type": "cds.String",
+          "length": 30
+        },
+        "CONSULTANT_COST_CENTRE_DESCRIPTION": {
+          "@cds.persistence.name": "CONSULTANT_COST_CENTRE_DESCRIPTION",
+          "type": "cds.String",
+          "length": 60
+        }
+      }
+    },
+    "EXT_WBS_OVERRIDE": {
+      "kind": "entity",
+      "@cds.persistence.name": "EXT_WBS_OVERRIDE",
+      "elements": {
+        "WBS_ID": {
+          "@cds.persistence.name": "WBS_ID",
+          "type": "cds.String",
+          "length": 30
+        },
+        "WBS_CUSTOMER_TEXT": {
+          "@cds.persistence.name": "WBS_CUSTOMER_TEXT",
+          "type": "cds.String",
+          "length": 50
+        },
+        "WBS_HTML_COLOUR": {
+          "@cds.persistence.name": "WBS_HTML_COLOUR",
+          "type": "cds.String",
+          "length": 30
+        }
+      }
+    }
+  },
+  "meta": {
+    "creator": "CDS Compiler v1.23.2"
+  },
+  "$version": "1.0",
+  "@sql_mapping": "plain"
+}

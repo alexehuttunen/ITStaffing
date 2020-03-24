@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" id="core.models::CV_STG_AM_PM" applyPrivilegeType="NONE" dataCategory="CUBE" schemaVersion="3.0" outputViewType="Aggregation" cacheInvalidationPeriod="NONE" enforceSqlExecution="false">
+<descriptions defaultDescription="CV_STG_AM_PM"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="core.models::CV_STG_BASIC">
+    <resourceUri>core.models::CV_STG_BASIC</resourceUri>
+  </DataSource>
+  <DataSource id="Projection_2$$$$core.models::CV_STG_BASIC$$">
+    <resourceUri>core.models::CV_STG_BASIC</resourceUri>
+  </DataSource>
+</dataSources>
+<calculationViews>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Projection_1" filterExpressionLanguage="SQL">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="FORECAST_AM_PM"/>
+    
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="core.models::CV_STG_BASIC"/>
+    <filter>&quot;FORECAST_AM_PM&quot; in ('AM','PM')</filter>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Projection_2" filterExpressionLanguage="SQL">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="FORECAST_AM_PM"/>
+    
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER"/>
+      <viewAttribute id="COST_CENTRE"/>
+    
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="REVERSE_AM_PM" datatype="VARCHAR" length="13" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='AM','PM','AM')</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="FORECAST_AMOUNT" datatype="DECIMAL" length="18" scale="2" expressionLanguage="SQL">
+        <formula>0.5</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="Projection_2$$$$core.models::CV_STG_BASIC$$"/>
+    <filter>&quot;FORECAST_AM_PM&quot; in ('AM','PM')</filter>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1" cardinality="CN_N" joinType="leftOuter" filterExpressionLanguage="SQL">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="NAME"/>
+    
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER" aggregationType="sum"/>
+      <viewAttribute id="COST_CENTRE"/>
+    
+      <viewAttribute id="FORECAST_AM_PM"/>
+      <viewAttribute id="FORECAST_AMOUNT" aggregationType="sum"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID_1"/>
+      <viewAttribute id="WBS_DESCRIPTION_1"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING_1"/>
+      <viewAttribute hidden="true" id="JOIN$REVERSE_AM_PM$FORECAST_AM_PM"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="WBS_ID_AM" datatype="NVARCHAR" length="30" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='AM', &quot;WBS_ID&quot;,&quot;WBS_ID_1&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="WBS_DESCRIPTION_AM" datatype="NVARCHAR" length="100" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='AM', &quot;WBS_DESCRIPTION&quot;,&quot;WBS_DESCRIPTION_1&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="SOFT_BOOKING_AM" datatype="NVARCHAR" length="13" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='AM', &quot;FORECAST_SOFTBOOKING&quot;,&quot;FORECAST_SOFTBOOKING_1&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="WBS_ID_PM" datatype="NVARCHAR" length="30" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='PM', &quot;WBS_ID&quot;,&quot;WBS_ID_1&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="WBS_DESCRIPTION_PM" datatype="NVARCHAR" length="100" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='PM', &quot;WBS_DESCRIPTION&quot;,&quot;WBS_DESCRIPTION_1&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="SOFT_BOOKING_PM" datatype="VARCHAR" length="13" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(&quot;FORECAST_AM_PM&quot;='PM', &quot;FORECAST_SOFTBOOKING&quot;,&quot;FORECAST_SOFTBOOKING_1&quot;)</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="Projection_2">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AM_PM" source="FORECAST_AM_PM"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_ID" source="WBS_ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_DESCRIPTION" source="WBS_DESCRIPTION"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_SOFTBOOKING" source="FORECAST_SOFTBOOKING"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$REVERSE_AM_PM$FORECAST_AM_PM" source="REVERSE_AM_PM"/>
+    </input>
+    <input node="Projection_1">
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_ID_1" source="WBS_ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_DESCRIPTION_1" source="WBS_DESCRIPTION"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_SOFTBOOKING_1" source="FORECAST_SOFTBOOKING"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$REVERSE_AM_PM$FORECAST_AM_PM" source="FORECAST_AM_PM"/>
+    </input>
+    <joinAttribute name="DATE"/>
+    <joinAttribute name="NAME"/>
+    <joinAttribute name="JOIN$REVERSE_AM_PM$FORECAST_AM_PM"/>
+  </calculationView>
+</calculationViews>
+<logicalModel id="Join_1">
+  <attributes>
+    <attribute id="DATE" order="1" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DATE"/>
+      <keyMapping columnObjectName="Join_1" columnName="DATE"/>
+    </attribute>
+    <attribute id="NAME" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="NAME"/>
+      <keyMapping columnObjectName="Join_1" columnName="NAME"/>
+    </attribute>
+  
+    <attribute id="DAY_OF_WEEK" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_OF_WEEK"/>
+  
+      <keyMapping columnObjectName="Join_1" columnName="DAY_OF_WEEK"/>
+  
+    </attribute>
+    <attribute id="DAY_NUMBER" order="4" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_NUMBER"/>
+      <keyMapping columnObjectName="Join_1" columnName="DAY_NUMBER"/>
+    </attribute>
+    <attribute id="COST_CENTRE" order="5" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CONSULTANT_COST_CENTRE_DESCRIPTION"/>
+      <keyMapping columnObjectName="Join_1" columnName="COST_CENTRE"/>
+    </attribute>
+  
+    <attribute id="WBS_ID_AM" order="6" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID_AM"/>
+      <keyMapping columnObjectName="Join_1" columnName="WBS_ID_AM"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION_AM" order="7" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION_AM"/>
+      <keyMapping columnObjectName="Join_1" columnName="WBS_DESCRIPTION_AM"/>
+    </attribute>
+    <attribute id="SOFT_BOOKING_AM" order="8" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="SOFT_BOOKING_AM"/>
+      <keyMapping columnObjectName="Join_1" columnName="SOFT_BOOKING_AM"/>
+    </attribute>
+    <attribute id="WBS_ID_PM" order="9" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID_PM"/>
+      <keyMapping columnObjectName="Join_1" columnName="WBS_ID_PM"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION_PM" order="10" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION_PM"/>
+      <keyMapping columnObjectName="Join_1" columnName="WBS_DESCRIPTION_PM"/>
+    </attribute>
+    <attribute id="SOFT_BOOKING_PM" order="11" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="SOFT_BOOKING_PM"/>
+      <keyMapping columnObjectName="Join_1" columnName="SOFT_BOOKING_PM"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures>
+    <measure id="FORECAST_AMOUNT" order="12" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="FORECAST_AMOUNT"/>
+      <measureMapping columnObjectName="Join_1" columnName="FORECAST_AMOUNT"/>
+    </measure>
+  </baseMeasures>
+  <calculatedMeasures/>
+  <restrictedMeasures/>
+  <localDimensions/>
+</logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+  
+    <shape expanded="true" modelObjectName="Projection_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="194" y="333"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Projection_2" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-28" y="333"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="82" y="177"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="Projection_2" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="199.673828125"/>
+    </shape>
+    <shape modelObjectName="Projection_1" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="191.12841796875"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>

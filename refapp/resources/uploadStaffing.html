@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<style>
+.formalign {left: 10px;width: 300px;}
+form{margin: 0 auto;height: 100px;}
+label{	display: inline-block;	text-align: right;	float: left;	height: 22px;}
+input{	display: inline-block;	text-align: left;	float: right;}
+table {  font-family: arial, sans-serif;  border-collapse: collapse;}
+#tbody {  height:300px;  width:620px;  overflow-x:scroll;  }
+#gcode {  left: 400px !important;  }
+td, th {  border: 1px solid #FFFFFF;  text-align: left;  padding: 10px;  width: 180px;}
+tr:nth-child(even) {  background-color: #FFFFFF;}
+.grid-back { grid-area: back; }
+.grid-add { grid-area: add; }
+.grid-add-bulk { grid-area: add-bulk; }
+.grid-del { grid-area: del; }
+.grid-trunc { grid-area: trunc; }
+.grid-show { grid-area: show; }
+.grid-container {  display: grid;
+  grid-template-areas:
+    'back blank'
+    'add add-bulk'
+    'del trunc'
+    'show show';
+    grid-gap: 10px;  background-color: #2196F3;  padding: 10px;}
+.grid-container > div {  background-color: rgba(255, 255, 255, 0.8);  text-align: left;  padding: 20px 0;  font-size: 15px;}
+</style>
+
+</head>
+<body onload="pageLoad()">	
+
+<div class="grid-container">
+  <div class="grid-back">
+	<div class="formalign">
+  		<form action="index.html" style="width:100px; height:30px;">
+    		<input type="submit" value="Back to Menu" />
+		</form>
+	</div>
+  </div>
+  <div class="grid-add">
+  	<div id="testarea">hello</div>
+  </div>
+  <div class="grid-add-bulk">
+  	<h2>Group Bulk File Entry <div id="add-bulk-confirm" style="display:inline"> - Row inserted</div></h2>
+	<div class="formalign">
+  	<form id="bulk-form" action="https://hxehost:51044/uploadStaffing.xsjs">
+        <input type="file" id="fileinput"/>
+        <input type='button' id='btnLoad' value='Load' onclick='handleFileSelect();' />
+	</form>
+	</div>
+	<script>
+			function handleFileSelect()
+    		{      
+      			  var input=jQuery('#fileinput');
+		          var file = input[0].files[0];
+		          fr = new FileReader();
+		          fr.onload = (function() {
+		          			var fileContent=fr.result;
+		          			var fileRows=fileContent.split('\n');
+							var rowCount=0;
+							var currentChunk=0;
+							var fileChunked=[""];
+							for (var i = 0; i<fileRows.length; i++) { 
+							if(i>0){	
+								fileChunked[currentChunk] += fileRows[i];
+								fileChunked[currentChunk] +='--RETURN--';
+								rowCount++;
+								if(rowCount==1000){
+									rowCount=0;
+									currentChunk++;
+									fileChunked[currentChunk]="";
+								}
+								}
+							}
+							document.getElementById('testarea').innerHTML=fileChunked[1];
+							for (var j = 0; j<fileChunked.length; j++) { 
+								if(i>0){
+									          	        jQuery.ajax({url: jQuery('#bulk-form').attr('action'),
+												    	dataType: 'text',
+												    	method: 'POST',
+												    	contentType: 'text/plain',
+												    	processData: false,
+												    	async: false,
+												    	data : fileChunked[j],
+												    	success: function(resp){
+												    		jQuery('#add-bulk-confirm').show();
+															document.getElementById('add-bulk-confirm').innerHTML=j + resp;					    		
+												    		//setTimeout(function() {	jQuery('#add-bulk-confirm').fadeOut('slow');}	, 2000);
+												    		//pageLoad();
+												    	}
+												    });		
+							
+									}
+								}
+
+
+		          });
+		          fr.readAsText(file);
+		
+		      }
+			</script>
+  </div>  
+  <div class="grid-show">
+	<h2>Current Entries</h2>
+	<div id="tablediv">n</div>
+  </div>
+</div>
+	<script>
+	jQuery('#add-bulk-confirm').hide();
+	</script>	
+	<script>
+	function pageLoad(){
+		var dataj=JSON.parse('[]');
+		 jQuery.ajax({url: 'https://hxehost:51044/getStaffingJSON.xsjs',
+			    	method: 'POST',
+			    	dataType: 'json',
+			    	async: false,
+			    	success: function(resp){
+						dataj=resp;
+			    	}
+			    });
+		var html = '';
+		function buildTableHTML(jsonData){
+			html+='<table><tr> <th>Group Code</th>  <th>Group Name</th>  <th>Group Owner</th> </tr> </table>';
+			html+='<div id="tbody"><table>'
+		for (var i = 0; i<jsonData.length; i++) { 
+	    	html+='<tr><td>'+jsonData[i].FORECAST_DATE+'</td><td>'+jsonData[i].CONSULTANT_ID+'</td><td>'+jsonData[i].CONSULTANT_FIRST_NAME+'</td></tr>';
+		}
+			html+='</table></div>';
+		}
+		buildTableHTML(dataj);
+		document.getElementById('tablediv').innerHTML=html;
+	}
+	</script>
+</body>
+</html>

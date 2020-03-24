@@ -1,0 +1,5 @@
+procedure PROC_TRUN_CUSTOMER_GROUP()
+LANGUAGE SQLSCRIPT AS
+begin
+truncate table "CUSTOMER_GROUP";
+end

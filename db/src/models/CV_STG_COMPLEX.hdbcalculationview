@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" id="core.models::CV_STG_COMPLEX" applyPrivilegeType="NONE" dataCategory="CUBE" schemaVersion="3.0" outputViewType="Aggregation" cacheInvalidationPeriod="NONE" enforceSqlExecution="false">
+<descriptions defaultDescription="CV_STG_COMPLEX"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="core.models::CV_STG_BASIC">
+    <resourceUri>core.models::CV_STG_BASIC</resourceUri>
+  </DataSource>
+  <DataSource id="core.models::CV_STG_AM_PM">
+    <resourceUri>core.models::CV_STG_AM_PM</resourceUri>
+  </DataSource>
+</dataSources>
+<calculationViews>
+  <calculationView xsi:type="Calculation:ProjectionView" id="FULL" filterExpressionLanguage="SQL">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="COST_CENTRE"/>
+      <viewAttribute id="FORECAST_AMOUNT"/>
+      <viewAttribute id="FORECAST_AM_PM"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="core.models::CV_STG_BASIC"/>
+    <filter>&quot;FORECAST_AM_PM&quot;='FULL'</filter>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="AM_PM">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="FORECAST_AMOUNT"/>
+    
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER"/>
+      <viewAttribute id="COST_CENTRE"/>
+    
+      <viewAttribute id="WBS_ID_AM"/>
+      <viewAttribute id="WBS_DESCRIPTION_AM"/>
+      <viewAttribute id="SOFT_BOOKING_AM"/>
+      <viewAttribute id="WBS_ID_PM"/>
+      <viewAttribute id="WBS_DESCRIPTION_PM"/>
+      <viewAttribute id="SOFT_BOOKING_PM"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="FORECAST_AM_PM" datatype="VARCHAR" length="13" expressionLanguage="SQL">
+        <formula>'AM_PM'</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="core.models::CV_STG_AM_PM"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:UnionView" id="Union_1">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER" aggregationType="sum"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="COST_CENTRE"/>
+      <viewAttribute id="FORECAST_AMOUNT" aggregationType="sum"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING" datatype="NVARCHAR" length="10"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+    
+      <viewAttribute id="FORECAST_AM_PM"/>
+    
+      <viewAttribute id="WBS_ID_AM"/>
+      <viewAttribute id="WBS_DESCRIPTION_AM"/>
+      <viewAttribute id="SOFT_BOOKING_AM"/>
+      <viewAttribute id="WBS_ID_PM"/>
+      <viewAttribute id="WBS_DESCRIPTION_PM"/>
+      <viewAttribute id="SOFT_BOOKING_PM"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="FULL" emptyUnionBehavior="NO_ROW">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_OF_WEEK" source="DAY_OF_WEEK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_NUMBER" source="DAY_NUMBER"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="COST_CENTRE" source="COST_CENTRE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AMOUNT" source="FORECAST_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AM_PM" source="FORECAST_AM_PM"/>
+    
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_ID_AM" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_DESCRIPTION_AM" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="SOFT_BOOKING_AM" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_ID_PM" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_DESCRIPTION_PM" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="SOFT_BOOKING_PM" null="true" value=""/>
+    </input>
+    <input node="AM_PM" emptyUnionBehavior="NO_ROW">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_OF_WEEK" source="DAY_OF_WEEK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_NUMBER" source="DAY_NUMBER"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="COST_CENTRE" source="COST_CENTRE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AMOUNT" source="FORECAST_AMOUNT"/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="FORECAST_SOFTBOOKING" null="true"/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_ID" null="true" value=""/>
+      <mapping xsi:type="Calculation:ConstantAttributeMapping" target="WBS_DESCRIPTION" null="true"/>
+    
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AM_PM" source="FORECAST_AM_PM"/>
+    </input>
+  </calculationView>
+</calculationViews>
+<logicalModel id="Union_1">
+  <attributes>
+    <attribute id="DATE" order="1" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DATE"/>
+      <keyMapping columnObjectName="Union_1" columnName="DATE"/>
+    </attribute>
+    <attribute id="DAY_OF_WEEK" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_OF_WEEK"/>
+      <keyMapping columnObjectName="Union_1" columnName="DAY_OF_WEEK"/>
+    </attribute>
+    <attribute id="DAY_NUMBER" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_NUMBER"/>
+      <keyMapping columnObjectName="Union_1" columnName="DAY_NUMBER"/>
+    </attribute>
+    <attribute id="NAME" order="4" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="NAME"/>
+      <keyMapping columnObjectName="Union_1" columnName="NAME"/>
+    </attribute>
+    <attribute id="COST_CENTRE" order="5" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="COST_CENTRE"/>
+      <keyMapping columnObjectName="Union_1" columnName="COST_CENTRE"/>
+    </attribute>
+    <attribute id="FORECAST_SOFTBOOKING" order="7" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="FORECAST_SOFTBOOKING"/>
+      <keyMapping columnObjectName="Union_1" columnName="FORECAST_SOFTBOOKING"/>
+    </attribute>
+    <attribute id="WBS_ID" order="8" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_ID"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION" order="9" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_DESCRIPTION"/>
+    </attribute>
+  
+    <attribute id="FORECAST_AM_PM" order="10" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="FORECAST_AM_PM"/>
+      <keyMapping columnObjectName="Union_1" columnName="FORECAST_AM_PM"/>
+    </attribute>
+    <attribute id="WBS_ID_AM" order="11" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID_AM"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_ID_AM"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION_AM" order="12" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION_AM"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_DESCRIPTION_AM"/>
+    </attribute>
+    <attribute id="SOFT_BOOKING_AM" order="13" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="SOFT_BOOKING_AM"/>
+      <keyMapping columnObjectName="Union_1" columnName="SOFT_BOOKING_AM"/>
+    </attribute>
+    <attribute id="WBS_ID_PM" order="14" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID_PM"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_ID_PM"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION_PM" order="15" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION_PM"/>
+      <keyMapping columnObjectName="Union_1" columnName="WBS_DESCRIPTION_PM"/>
+    </attribute>
+    <attribute id="SOFT_BOOKING_PM" order="16" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="SOFT_BOOKING_PM"/>
+      <keyMapping columnObjectName="Union_1" columnName="SOFT_BOOKING_PM"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures>
+    <measure id="FORECAST_AMOUNT" order="6" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="FORECAST_AMOUNT"/>
+      <measureMapping columnObjectName="Union_1" columnName="FORECAST_AMOUNT"/>
+    </measure>
+  </baseMeasures>
+  <calculatedMeasures/>
+  <restrictedMeasures/>
+  <localDimensions/>
+</logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+  
+    <shape expanded="true" modelObjectName="FULL" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-234" y="377"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="AM_PM" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="90" y="411"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Union_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="20" y="219"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>

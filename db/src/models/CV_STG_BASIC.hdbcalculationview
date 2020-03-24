@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" id="core.models::CV_STG_BASIC" applyPrivilegeType="NONE" dataCategory="CUBE" schemaVersion="3.0" outputViewType="Aggregation" cacheInvalidationPeriod="NONE" enforceSqlExecution="false">
+<descriptions defaultDescription="CV_STG_BASIC"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="EXT_DATE">
+    <resourceUri>EXT_DATE</resourceUri>
+  </DataSource>
+  <DataSource id="EXT_STAFFING">
+    <resourceUri>EXT_STAFFING</resourceUri>
+  </DataSource>
+  <DataSource id="Projection_3$$$$EXT_STAFFING$$">
+    <resourceUri>EXT_STAFFING</resourceUri>
+  </DataSource>
+</dataSources>
+<calculationViews>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Projection_1" filterExpressionLanguage="SQL">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="JOINER" datatype="INTEGER" expressionLanguage="SQL">
+        <formula>1</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="EXT_DATE">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_OF_WEEK" source="DAY_OF_WEEK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_NUMBER" source="DAY_NUMBER"/>
+    </input>
+    <filter>&quot;DAY_NUMBER&quot;&lt;6</filter>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="Projection_2">
+    <viewAttributes>
+      <viewAttribute id="CONSULTANT_ID"/>
+      <viewAttribute id="CONSULTANT_FIRST_NAME"/>
+      <viewAttribute id="CONSULTANT_LAST_NAME"/>
+      <viewAttribute id="CONSULTANT_COST_CENTRE_DESCRIPTION"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="NAME" datatype="VARCHAR" length="63" expressionLanguage="COLUMN_ENGINE">
+        <formula>&quot;CONSULTANT_FIRST_NAME&quot;+' '+&quot;CONSULTANT_LAST_NAME&quot;</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="JOINER" datatype="INTEGER" expressionLanguage="SQL">
+        <formula>1</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="EXT_STAFFING"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1" cardinality="CN_N" joinType="inner">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER" aggregationType="sum"/>
+      <viewAttribute id="CONSULTANT_ID"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="COST_CENTRE"/>
+      <viewAttribute hidden="true" id="JOIN$JOINER$JOINER"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="Projection_1">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_OF_WEEK" source="DAY_OF_WEEK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_NUMBER" source="DAY_NUMBER"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$JOINER$JOINER" source="JOINER"/>
+    </input>
+    <input node="Projection_2">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CONSULTANT_ID" source="CONSULTANT_ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="COST_CENTRE" source="CONSULTANT_COST_CENTRE_DESCRIPTION"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$JOINER$JOINER" source="JOINER"/>
+    </input>
+    <joinAttribute name="JOIN$JOINER$JOINER"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_2" cardinality="C1_N" joinType="leftOuter">
+    <viewAttributes>
+      <viewAttribute id="DATE"/>
+      <viewAttribute id="DAY_OF_WEEK"/>
+      <viewAttribute id="DAY_NUMBER" aggregationType="sum"/>
+      <viewAttribute id="NAME"/>
+      <viewAttribute id="COST_CENTRE"/>
+      <viewAttribute id="FORECAST_AMOUNT_PRE" aggregationType="sum"/>
+      <viewAttribute id="FORECAST_AM_PM_PRE"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+      <viewAttribute hidden="true" id="JOIN$CONSULTANT_ID$CONSULTANT_ID"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="FORECAST_AMOUNT" datatype="DECIMAL" length="18" scale="2" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(isnull(&quot;FORECAST_AMOUNT_PRE&quot;),1,&quot;FORECAST_AMOUNT_PRE&quot;)</formula>
+      </calculatedViewAttribute>
+      <calculatedViewAttribute id="FORECAST_AM_PM" datatype="VARCHAR" length="13" expressionLanguage="COLUMN_ENGINE">
+        <formula>if(isnull(&quot;FORECAST_AM_PM_PRE&quot;),'FULL',&quot;FORECAST_AM_PM_PRE&quot;)</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <restrictedViewAttributes/>
+    <input node="Join_1">
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_OF_WEEK" source="DAY_OF_WEEK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DAY_NUMBER" source="DAY_NUMBER"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME" source="NAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="COST_CENTRE" source="COST_CENTRE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CONSULTANT_ID$CONSULTANT_ID" source="CONSULTANT_ID"/>
+    </input>
+    <input node="Projection_3">
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AMOUNT_PRE" source="FORECAST_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AM_PM_PRE" source="FORECAST_AM_PM"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_SOFTBOOKING" source="FORECAST_SOFTBOOKING"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_ID" source="WBS_ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_DESCRIPTION" source="WBS_DESCRIPTION"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="DATE" source="FORECAST_DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CONSULTANT_ID$CONSULTANT_ID" source="CONSULTANT_ID"/>
+    </input>
+    <joinAttribute name="DATE"/>
+    <joinAttribute name="JOIN$CONSULTANT_ID$CONSULTANT_ID"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Projection_3">
+    <viewAttributes>
+      <viewAttribute id="FORECAST_DATE"/>
+      <viewAttribute id="FORECAST_AMOUNT"/>
+      <viewAttribute id="FORECAST_AM_PM"/>
+      <viewAttribute id="FORECAST_SOFTBOOKING"/>
+      <viewAttribute id="WBS_ID"/>
+      <viewAttribute id="WBS_DESCRIPTION"/>
+      <viewAttribute id="CONSULTANT_ID"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="Projection_3$$$$EXT_STAFFING$$">
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_DATE" source="FORECAST_DATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AMOUNT" source="FORECAST_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_AM_PM" source="FORECAST_AM_PM"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="FORECAST_SOFTBOOKING" source="FORECAST_SOFTBOOKING"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_ID" source="WBS_ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="WBS_DESCRIPTION" source="WBS_DESCRIPTION"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CONSULTANT_ID" source="CONSULTANT_ID"/>
+    </input>
+  </calculationView>
+</calculationViews>
+<logicalModel id="Join_2">
+  <attributes>
+    <attribute id="DATE" order="1" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DATE"/>
+      <keyMapping columnObjectName="Join_2" columnName="DATE"/>
+    </attribute>
+    <attribute id="DAY_OF_WEEK" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_OF_WEEK"/>
+      <keyMapping columnObjectName="Join_2" columnName="DAY_OF_WEEK"/>
+    </attribute>
+    <attribute id="DAY_NUMBER" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="DAY_NUMBER"/>
+      <keyMapping columnObjectName="Join_2" columnName="DAY_NUMBER"/>
+    </attribute>
+    <attribute id="NAME" order="4" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="NAME"/>
+      <keyMapping columnObjectName="Join_2" columnName="NAME"/>
+    </attribute>
+    <attribute id="COST_CENTRE" order="5" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CONSULTANT_COST_CENTRE_DESCRIPTION"/>
+      <keyMapping columnObjectName="Join_2" columnName="COST_CENTRE"/>
+    </attribute>
+    <attribute id="FORECAST_AM_PM" order="7" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="FORECAST_AM_PM"/>
+      <keyMapping columnObjectName="Join_2" columnName="FORECAST_AM_PM"/>
+    </attribute>
+    <attribute id="FORECAST_SOFTBOOKING" order="8" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="FORECAST_SOFTBOOKING"/>
+      <keyMapping columnObjectName="Join_2" columnName="FORECAST_SOFTBOOKING"/>
+    </attribute>
+    <attribute id="WBS_ID" order="9" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_ID"/>
+      <keyMapping columnObjectName="Join_2" columnName="WBS_ID"/>
+    </attribute>
+    <attribute id="WBS_DESCRIPTION" order="10" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="WBS_DESCRIPTION"/>
+      <keyMapping columnObjectName="Join_2" columnName="WBS_DESCRIPTION"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures>
+    <measure id="FORECAST_AMOUNT" order="6" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="FORECAST_AMOUNT"/>
+      <measureMapping columnObjectName="Join_2" columnName="FORECAST_AMOUNT"/>
+    </measure>
+  </baseMeasures>
+  <calculatedMeasures/>
+  <restrictedMeasures/>
+  <localDimensions/>
+</logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+  
+    <shape expanded="true" modelObjectName="Projection_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-226" y="356"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Projection_2" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="8" y="366"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-127" y="250"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="Projection_1" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="167.705078125"/>
+    </shape>
+    <shape modelObjectName="Projection_2" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="328.236328125"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Join_2" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="44" y="177"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="Join_1" modelObjectNameSpace="Join_2" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="250"/>
+    </shape>
+    <shape modelObjectName="Projection_3" modelObjectNameSpace="Join_2" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="232.6845703125"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Projection_3" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="194" y="303"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>

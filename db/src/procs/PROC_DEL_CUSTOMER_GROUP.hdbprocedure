@@ -1,0 +1,6 @@
+procedure PROC_DEL_CUSTOMER_GROUP( IN G_CODE varchar(300) , OUT ROW_COUNT integer)
+LANGUAGE SQLSCRIPT AS
+begin
+exec 'select count(GROUP_CODE) from "CUSTOMER_GROUP" where '',''||''' || :G_CODE || '''||'','' like ''%,''||GROUP_CODE||'',%'';' into ROW_COUNT;
+exec 'delete from "CUSTOMER_GROUP" where '',''||''' || :G_CODE || '''||'','' like ''%,''||GROUP_CODE||'',%'';';
+end;

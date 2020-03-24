@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<style>
+.formalign {left: 10px;width: 300px;}
+form{margin: 0 auto;height: 100px;}
+label{	display: inline-block;	text-align: right;	float: left;	height: 22px;}
+input{	display: inline-block;	text-align: left;	float: right;}
+table {  font-family: arial, sans-serif;  border-collapse: collapse;}
+#tbody {  height:300px;  width:620px;  overflow-x:scroll;  }
+#gcode {  left: 400px !important;  }
+td, th {  border: 1px solid #FFFFFF;  text-align: left;  padding: 10px;  width: 180px;}
+tr:nth-child(even) {  background-color: #FFFFFF;}
+.grid-back { grid-area: back; }
+.grid-add { grid-area: add; }
+.grid-add-bulk { grid-area: add-bulk; }
+.grid-del { grid-area: del; }
+.grid-trunc { grid-area: trunc; }
+.grid-show { grid-area: show; }
+.grid-container {  display: grid;
+  grid-template-areas:
+    'back blank'
+    'add add-bulk'
+    'del trunc'
+    'show show';
+    grid-gap: 10px;  background-color: #2196F3;  padding: 10px;}
+.grid-container > div {  background-color: rgba(255, 255, 255, 0.8);  text-align: left;  padding: 20px 0;  font-size: 15px;}
+</style>
+
+</head>
+<body onload="pageLoad()">	
+
+<div class="grid-container">
+  <div class="grid-back">
+	<div class="formalign">
+  		<form action="index.html" style="width:100px; height:30px;">
+    		<input type="submit" value="Back to Menu" />
+		</form>
+	</div>
+  </div>
+  <div class="grid-add">
+	<h2>Group Manual Entry 	<div id="add-single-confirm" style="display:inline"> - Row inserted</div></h2>
+	<div class="formalign">
+		<form id="form-insert" action="https://hxehost:51044/addGroup.xsjs">
+		  <label for="gcode">Group Code:</label>
+		  <input type="text" id="gcode" name="gcode"><br>
+		  <label for="gname">Group Name:</label>
+		  <input type="text" id="gname" name="gname"><br>
+		  <label for="gowner">Group Owner:</label>
+		  <input type="text" id="gowner" name="gowner"><br><br>
+		  <input type="submit" value="Submit">
+		</form> 
+			<script>
+				var addForm = jQuery('#form-insert');
+				// Set up an event listener for the contact form.
+				jQuery(addForm).submit(function(event) {   // Stop the browser from submitting the form.
+				var addFormData = jQuery(addForm).serialize();
+    			event.preventDefault();
+				jQuery.ajax({url: jQuery(addForm).attr('action'),
+					    	method: 'POST',
+					    	dataType: 'text',
+					    	async: false,
+					    	data : addFormData,
+					    	success: function(resp){
+					    		jQuery(addForm)[0].reset();
+					    		jQuery('#add-single-confirm').show();
+					    		setTimeout(function() {	jQuery('#add-single-confirm').fadeOut('slow');}	, 2000);
+					    		pageLoad();
+					    	}
+					    });	
+				});
+			</script>
+	</div>
+	If you click the "Submit" button, the form data will be inserted into the Customer Group table.
+  </div>
+  <div class="grid-add-bulk">
+  	<h2>Group Bulk File Entry <div id="add-bulk-confirm" style="display:inline"> - Row inserted</div></h2>
+	<div class="formalign">
+  	<form id="bulk-form" action="https://hxehost:51044/addGroupsBulk.xsjs">
+        <input type="file" id="fileinput"/>
+        <input type='button' id='btnLoad' value='Load' onclick='handleFileSelect();' />
+	</form>
+	</div>
+	<script>
+			function handleFileSelect()
+    		{      
+      			  var input=jQuery('#fileinput');
+		          var file = input[0].files[0];
+		          fr = new FileReader();
+		          fr.onload = (function() {
+		          			var fileContent=fr.result;
+		          	        jQuery.ajax({url: jQuery('#bulk-form').attr('action'),
+					    	dataType: 'text',
+					    	method: 'POST',
+					    	//headers: 'Access-Control-Allow-Origin: *'
+					    	contentType: 'text/plain',
+					    	processData: false,
+					    	async: false,
+					    	data : fileContent,
+					    	success: function(resp){
+					    		jQuery('#add-bulk-confirm').show();
+								document.getElementById('add-bulk-confirm').innerHTML=resp;					    		
+					    		setTimeout(function() {	jQuery('#add-bulk-confirm').fadeOut('slow');}	, 2000);
+					    		pageLoad();
+					    	}
+					    });	
+		          });
+		          fr.readAsText(file);
+		
+		      }
+			</script>
+  </div>  
+  <div class="grid-del">
+	<h2>Delete List of Groups <div id="del-list-confirm" style="display:inline"></div></h2>
+	<div class="formalign">
+	<form id="form-delete" action="https://hxehost:51044/deleteGroup.xsjs">
+	  <label for="gcode">Group Codes:</label>
+	  <input type="text" id="gcode" name="gcode"><br><br>
+	  <input type="submit" value="Submit">
+	</form> 
+			<script>
+				var delForm = jQuery('#form-delete');
+				// Set up an event listener for the contact form.
+				jQuery(delForm).submit(function(event) {   // Stop the browser from submitting the form.
+				var delFormData = jQuery(delForm).serialize();
+    			event.preventDefault();
+				jQuery.ajax({url: jQuery(delForm).attr('action'),
+					    	method: 'POST',
+					    	dataType: 'text',
+					    	async: false,
+					    	data : delFormData,
+					    	success: function(resp){
+					    		jQuery(delForm)[0].reset();
+					    		document.getElementById('del-list-confirm').innerHTML=' - Records deleted: '+resp;
+					    		jQuery('#del-list-confirm').show();
+					    		setTimeout(function() {	jQuery('#del-list-confirm').fadeOut('slow');}	, 2000);
+					    		pageLoad();
+					    	}
+					    });	
+				});
+			</script>
+	</div>
+	<p>If you click the "Submit" button, the records for these codes will be removed from the Customer Group table
+	<br>Enter values in a comma-separated list. Eg: 1,2,3 (Supports Group Codes only)
+	</p>
+  </div>
+  <div class="grid-trunc">
+	<h2>Delete All Groups <div id = "trunc-confirm" style="display: inline"> - Table truncated!</div> </h2>
+	<button onclick="ConfirmTruncateGroup()">DELETE ALL</button>
+	<script>
+	function ConfirmTruncateGroup() {
+		var q = "Are you sure?";	
+		var r = confirm(q);
+		if (r == true) {
+	    	var Url = "https://hxehost:51044/truncateGroups.xsjs";
+			    jQuery.ajax({url: Url,
+			    	method: 'POST',
+			    	dataType: 'text',
+			    	async: false,
+			    	success: function(resp){
+			    		jQuery('#trunc-confirm').show();
+			    		setTimeout(function() {jQuery('#trunc-confirm').fadeOut('slow');}, 2000);
+			    		pageLoad();
+			    	}
+			    });
+		}    
+	
+	}
+	</script>
+	<p>If you click the button, all records will be removed from the Customer Group table
+	<br>Cannot be undone</p>
+  </div>
+  <div class="grid-show">
+	<h2>Current Entries</h2>
+	<div id="tablediv">n</div>
+  </div>
+</div>
+	<script>
+	jQuery('#trunc-confirm').hide();
+	jQuery('#add-single-confirm').hide();
+	jQuery('#del-list-confirm').hide();
+	jQuery('#add-bulk-confirm').hide();
+	</script>	
+	<script>
+	function pageLoad(){
+		var dataj=JSON.parse('[]');
+		 jQuery.ajax({url: 'https://hxehost:51044/getGroupsJSON.xsjs',
+			    	method: 'POST',
+			    	dataType: 'json',
+			    	async: false,
+			    	success: function(resp){
+						dataj=resp;
+			    	}
+			    });
+		var html = '';
+		function buildTableHTML(jsonData){
+			html+='<table><tr> <th>Group Code</th>  <th>Group Name</th>  <th>Group Owner</th> </tr> </table>';
+			html+='<div id="tbody"><table>'
+		for (var i = 0; i<jsonData.length; i++) { 
+	    	html+='<tr><td>'+jsonData[i].GROUP_CODE+'</td><td>'+jsonData[i].GROUP_NAME+'</td><td>'+jsonData[i].GROUP_OWNER+'</td></tr>';
+		}
+			html+='</table></div>';
+		}
+		buildTableHTML(dataj);
+		document.getElementById('tablediv').innerHTML=html;
+	}
+	</script>
+</body>
+</html>

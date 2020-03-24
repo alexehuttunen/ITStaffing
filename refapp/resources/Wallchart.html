@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script>var weekOffset=0;
+			var dataj=JSON.parse('[]');
+	</script>
+	<script>function arrowLeft(){
+		weekOffset --;
+		console.log(weekOffset)
+		pageLoad();
+	}
+	</script>
+	<script>function arrowRight(){
+		weekOffset ++;
+		console.log(weekOffset);
+		pageLoad();
+	}
+	</script>
+<style>
+.table-container {  position: relative;    width: 1500px;    height: 100%;   border: 2px solid red;  display: inline-block;}
+.full { width: 250px;  overflow: hidden;  text-overflow: ellipsis;}
+.half { width: 125px;  overflow: hidden;  text-overflow: ellipsis;}
+th {  border: 1px solid black;  padding: 10px;  width: 125px; background: white;}
+td {  border: 1px solid black;  padding: 10px;  margin: 0; white-space: nowrap; }
+.right {  overflow: auto;}
+#header-fixed2 {  position: fixed;  table-layout: fixed;  width: 1239px;  top: 0px;  display: none; z-index:2; text-align: center;  background-color: grey; }
+#tableBody {  table-layout: fixed;  width:1020px;}
+#testarea {  width:150px;}
+.booking-detail {top: 400px;
+    left: 300px;
+    width: 300px;
+    position: absolute;
+    border: 2px solid cadetblue;
+    height: 200px;
+    display: none;
+    padding: 5px;
+    background: thistle;}
+
+.formalign {left: 10px;width: 300px;}
+form{margin: 0 auto;height: 100px;}
+label{	display: inline-block;	text-align: right;	float: left;	height: 22px;}
+input{	display: inline-block;	text-align: left;	float: right;}
+table {  font-family: arial, sans-serif;  border-collapse: collapse; float:left;}
+#tbody {  height:300px;  width:620px;  overflow-x:scroll; display: inline-block; }
+#gcode {  left: 400px !important;  }
+
+.arrow-left {background-color:white; float: left; cursor:pointer; font-size: xx-large;}
+.arrow-right {background-color:white; float: right; cursor:pointer; font-size: xx-large;}
+
+.grid-back { grid-area: back; }
+.grid-add { grid-area: add; }
+.grid-add-bulk { grid-area: add-bulk; }
+.grid-del { grid-area: del; }
+.grid-trunc { grid-area: trunc; }
+.grid-show { grid-area: show; }
+.grid-container {  display: grid;
+  grid-template-areas:
+    'back blank'
+    'add add-bulk'
+    'del trunc'
+    'show show';
+    grid-gap: 10px;  background-color: #2196F3;  padding: 10px;}
+.grid-container > div {  background-color: rgba(255, 255, 255, 0.8);  text-align: left;  padding: 20px 0;  font-size: 15px;}
+</style>
+
+</head>
+<body onload="pageLoad()">	
+  	<div id="bookingDetail" class="booking-detail"></div>
+<div class="grid-container" id="hmm">
+  <div class="grid-back">
+	<div class="formalign">
+  		<form action="index.html" style="width:100px; height:30px;">
+    		<input type="submit" value="Back to Menu" />
+		</form>
+	</div>
+  </div>
+  <div class="grid-add">
+	<table style="margin-left:20px;"><tr>
+		<td  style="background:palegreen;">Booked</td>
+		<td  style="background:turquoise;">Soft Booked</td>
+		<td  style="background:white;">No Booking</td>
+		<td  style="background:khaki;">Holiday</td>
+		<td  style="background:darkkhaki;">Bank Holiday</td>
+	</tr></table>
+
+  </div>
+  <div class="grid-add-bulk">
+  	<h2>Group Bulk File Entry <div id="add-bulk-confirm" style="display:inline"> - Row inserted</div></h2>
+  </div>  
+  <div class="grid-show">
+	<div id="tablediv">Loading...</div>
+  </div>
+</div>
+	<script>
+	jQuery('#add-bulk-confirm').hide();
+	</script>	
+	<script>
+	function pageLoad(){
+		var todayDate = new Date();
+		var startDate = new Date();
+		var endDate = new Date();
+		var dayOfWeek =  (7 * weekOffset) + 1 - todayDate.getDay();
+		startDate.setDate(todayDate.getDate() + dayOfWeek);
+		endDate.setDate(todayDate.getDate() + (dayOfWeek + 27));
+		var startDateVar = startDate.getFullYear() + '-' + (startDate.getMonth()+1) + '-' + startDate.getDate();
+		var endDateVar = endDate.getFullYear() + '-' + (endDate.getMonth()+1) + '-' + endDate.getDate();
+		var dataURL = 'https://hxehost:51044/getStaffingJSON.xsjs?startDate='+startDateVar+'&endDate='+endDateVar;
+		 jQuery.ajax({url: dataURL,
+			    	method: 'POST',
+			    	dataType: 'json',
+			    	async: false,
+			    	success: function(resp){
+						dataj=resp;
+			    	}
+			    });
+			    
+			var htmlLeft = '';
+			var htmlTopTrack ='';
+			var htmlTop ='';
+			var htmlBody = '';	
+			
+		function buildTableHTML(jsonData){
+
+			
+			var mondays = 'start';
+			var consultants = 'start';
+			var alldays = 'Monday';
+			htmlLeft += '<table id="headerLeft" style="margin-left:20px"><thead><th colspan="2" style="width:175px; height:55px; text-align:center"><div class="arrow-left" onClick="arrowLeft()">&#8592;</div><div class="arrow-right" onClick="arrowRight()">&#8594;</div></th></thead><tbody>';
+			htmlTopTrack += '<table id="header-fixed2" style="margin-left:20px"><thead><th style="width:104px;"><div class="arrow-left" onClick="arrowLeft()">&#8592;</div><div class="arrow-right" onClick="arrowRight()">&#8594;</div></th>';
+			htmlTop +='<table id="tableBody"><thead>';
+			htmlBody += '<tbody><tr>';
+		for (var j = 0; j<jsonData.length; j++) {	
+		// Build Top Header
+			if(jsonData[j].NAME==jsonData[0].NAME && jsonData[j].DAY_OF_WEEK=='Monday' && jsonData[j].DATE != mondays){
+			mondays=jsonData[j].DATE.substring(0,10);
+			htmlTopTrack+='<th>'+mondays+'</th>';
+			htmlTop+='<th colspan="2" style="text-align: center">'+mondays+'</th>';
+			}
+			
+		// Build Left Header
+			if(jsonData[j].NAME!=consultants){
+			consultants=jsonData[j].NAME;
+            htmlLeft+='<tr><th rowspan="5">'+consultants+'</th><th style="width:50px;">Mon</th></tr><tr><th style="width:50px;">Tue</th></tr><tr><th style="width:50px;">Wed</th></tr><tr><th style="width:50px;">Thu</th></tr><tr><th style="width:50px;">Fri</th></tr><tr><th colspan="2" style="display: table; height: 10px; width: 0px;"></th></tr>';
+			}		
+		// Build Body
+			if(jsonData[j].DAY_OF_WEEK=='Monday' && jsonData[j].DAY_OF_WEEK!=alldays){
+				htmlBody+='</tr><tr><th colspan="8" style="display: table; height: 10px; width: 0px;"></th>';}
+			if(jsonData[j].DAY_OF_WEEK!=alldays){
+				htmlBody+='</tr><tr>';
+				alldays=jsonData[j].DAY_OF_WEEK;
+			}		
+		//Whole Day
+		if(jsonData[j].FORECAST_AM_PM=='FULL'){
+		
+		if(jsonData[j].WBS){
+			htmlBody+='<td colspan ="2" class="full" style="background:palegreen;"><div onClick="showhideDetail()" onMouseOver="clickBooking('+j+', 0)">'+jsonData[j].PROJECT ;
+			htmlBody+='</div></td>';
+		} 
+		else{
+			htmlBody+='<td colspan ="2" class="full" style="background:white;"><div onClick="showhideDetail()">-</div></td>';
+		}	
+		}
+		
+		//Split Day 
+		if(jsonData[j].FORECAST_AM_PM=='AM_PM'){
+		if(jsonData[j].WBS_AM){
+			htmlBody+='<td class="half" style="background:palegreen;"><div onClick="showhideDetail()" onMouseOver="clickBooking('+j+', 1)">'+jsonData[j].PROJECT_AM ;
+			htmlBody+='</div></td>';
+		} 
+		else{
+			htmlBody+='<td class="half" style="background:white;"><div onClick="showhideDetail()">-</div></td>';
+		}
+		
+		if(jsonData[j].WBS_PM){
+			htmlBody+='<td class="half" style="background:palegreen;"><div onClick="showhideDetail()" onMouseOver="clickBooking('+j+', 2)">'+ jsonData[j].PROJECT_PM +'</div></td>';
+		} 
+		else{
+			htmlBody+='<td class="half" style="background:white;"><div onClick="showhideDetail()">-</div></td>';
+		}
+		}
+		
+		}
+			htmlTop+='</thead><thead style="text-align: center"><th>AM</th><th>PM</th><th>AM</th><th>PM</th><th>AM</th><th>PM</th><th>AM</th><th>PM</th></thead>';
+			htmlTopTrack+='</thead></table>';
+			htmlLeft+='</tbody></table>';
+			htmlBody+='</tr></tbody></table>';
+			
+		}
+		buildTableHTML(dataj);
+		//document.getElementById('tablediv').innerHTML='here';
+		document.getElementById('tablediv').innerHTML=htmlTopTrack+htmlLeft+'<div class="right">'+htmlTop+htmlBody+'</div>';
+		showHeader();
+	}
+	</script>
+	<script>
+	function showHeader(){
+//var tableOffset = jQuery("#tableBody").offset().top;
+var tableOffset = jQuery("#tablediv").offset().top;
+var fixedHeader2 = jQuery('#header-fixed2');
+var loadOffset = jQuery(window).scrollTop();
+    if (loadOffset >= tableOffset && fixedHeader2.is(":hidden")) {
+        fixedHeader2.show();
+    }
+    else if (loadOffset < tableOffset) {
+        fixedHeader2.hide();
+    }
+jQuery(window).bind("scroll", function() {
+    var offset = $(this).scrollTop();
+    if (offset >= tableOffset && fixedHeader2.is(":hidden")) {
+        fixedHeader2.show();
+    }
+    else if (offset < tableOffset) {
+        fixedHeader2.hide();
+    }
+});
+}
+	</script>
+	<script>
+	function clickBooking(cellNumber, am_pm){
+		var detailsHTML = '';
+		if(am_pm==1){
+		detailsHTML+='AM WBS is ' + dataj[cellNumber].WBS_AM;			
+		}
+		else if (am_pm==2){
+		detailsHTML+='PM WBS is ' + dataj[cellNumber].WBS_PM;			
+		}
+		else {
+		detailsHTML+= 'WBS is ' + dataj[cellNumber].WBS;		
+		}
+		var modulo = cellNumber % 4;
+		var modulo2 = cellNumber % 20;
+		var popupLeft = (modulo+1)* 254;
+		var popupTop = jQuery("#tablediv").offset().top + 120 + (((cellNumber-modulo)/4)*38) + (((cellNumber-modulo2)/20)*11);
+		document.getElementById('bookingDetail').innerHTML=detailsHTML;
+		document.getElementById('bookingDetail').style.left = popupLeft + 'px';
+		document.getElementById('bookingDetail').style.top = popupTop + 'px';
+	}
+	</script>
+	<script>
+	function showhideDetail(){
+		var current = document.getElementById('bookingDetail').style.display;
+		if(current =='none'){
+			document.getElementById('bookingDetail').style.display='inline';
+		}
+		else{
+			document.getElementById('bookingDetail').style.display='none';
+		}
+	}
+	</script>	
+</body>
+</html>
